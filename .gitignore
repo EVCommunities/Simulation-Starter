@@ -6,4 +6,8 @@ typings/*
 # ignore VS Code settings
 **/.vscode
 
+# ignore log file
 logfile.log
+
+# ignore test output
+test_simulation.yaml
