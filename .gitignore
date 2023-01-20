@@ -1,0 +1,9 @@
+# ignore Python build files
+**/__pycache__/*
+**/*.pyc
+typings/*
+
+# ignore VS Code settings
+**/.vscode
+
+logfile.log
