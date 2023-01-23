@@ -7,6 +7,7 @@
 """Creates a configuration for SimCES platform manager and start a container using the configuration."""
 
 import asyncio
+from typing import Optional
 
 from aiohttp_apispec import setup_aiohttp_apispec  # type: ignore
 from aiohttp import web
@@ -18,24 +19,30 @@ from demo.tools import tools
 LOGGER = tools.FullLogger(__name__)
 
 
-async def start_server() -> None:
+class WebApplication:
+    """Site"""
+    def __init__(self) -> None:
+        self.application: Optional[web.Application] = None
+
+
+async def start_server(webapp: WebApplication) -> None:
     """start_server"""
     await fetch.start_fetch()
 
-    app: web.Application = web.Application()
-    app.add_routes([web.post('/', routes.receive_request)])
+    webapp.application = web.Application()
+    webapp.application.add_routes([web.post('/', routes.receive_request)])
 
     setup_aiohttp_apispec(
-        app=app,
+        app=webapp.application,
         title="EVCommunities demo API",
         version="v1",
         url="/docs/swagger.json",
         swagger_path="/docs"
     )
 
-    runner = web.AppRunner(app)
+    runner = web.AppRunner(webapp.application)
     await runner.setup()
-    site = web.TCPSite(runner, port=8081)
+    site = web.TCPSite(runner, port=8111)
     await site.start()
 
     LOGGER.info("")
@@ -46,17 +53,20 @@ async def start_server() -> None:
     await asyncio.Event().wait()
 
 
-async def close():
+async def close(webapp: WebApplication):
     """close"""
-    await asyncio.sleep(1)
+    if webapp.application is not None:
+        await webapp.application.shutdown()
+        await webapp.application.cleanup()
 
 
 if __name__ == "__main__":
+    app = WebApplication()
     loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(start_server())
+        loop.run_until_complete(start_server(app))
     except KeyboardInterrupt:
-        loop.run_until_complete(close())
+        loop.run_until_complete(close(app))
     finally:
         LOGGER.info("")
         LOGGER.info("Web server stopped")

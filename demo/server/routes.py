@@ -58,8 +58,8 @@ async def receive_request(request: web.Request) -> web.Response:
             return responses.InvalidResponse(parameters).get_response()
 
         yaml_filename = simulation.get_yaml_filename()
-        LOGGER.info(yaml_filename)
         simulation.create_yaml_file(parameters, f"simulations/{yaml_filename}")
+        LOGGER.debug(f"Created new simulation configuration to file 'simulations/{yaml_filename}'")
 
         container_starter = ContainerStarter()
         container_configuration = await create_container_configuration(yaml_filename)
@@ -74,11 +74,14 @@ async def receive_request(request: web.Request) -> web.Response:
             LOGGER.error(error_text)
             return responses.ServerErrorResponse(error_text).get_response()
 
-        LOGGER.info(await get_container_name(container))
+        LOGGER.debug(f"Started Docker container {await get_container_name(container)}")
+        await container_starter.close()
         return responses.OkResponse(await get_container_name(container)).get_response()
 
     except Exception as error:  # pylint: disable=broad-except
         tools.log_exception(error)
+        if "container_starter" in locals():
+            await container_starter.close()  # type: ignore
         return responses.ServerErrorResponse().get_response()
 
 
@@ -88,9 +91,6 @@ async def create_container_configuration(configuration_filename: str) -> Optiona
             **configuration.PLATFORM_MANAGER_ENVIRONMENT,
             **{"SIMULATION_CONFIGURATION_FILE": f"/simulations/{configuration_filename}"}
         }
-    LOGGER.info(str(manager_environment))
-    LOGGER.info(str(configuration.PLATFORM_MANAGER_NETWORKS))
-    LOGGER.info(str(configuration.PLATFORM_MANAGER_VOLUMES))
 
     return ContainerConfiguration(
         container_name=configuration.PLATFORM_MANAGER_NAME,
