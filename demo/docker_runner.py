@@ -18,7 +18,7 @@ from aiodocker import Docker
 from aiodocker.containers import DockerContainer
 from aiohttp.client_exceptions import ClientError
 
-from demo.tools import EnvironmentVariableValue, FullLogger, log_exception
+from demo.tools.tools import EnvironmentVariableValue, FullLogger, log_exception
 
 LOGGER = FullLogger(__name__)
 

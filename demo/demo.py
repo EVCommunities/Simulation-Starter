@@ -9,8 +9,8 @@
 from aiohttp_apispec import setup_aiohttp_apispec  # type: ignore
 from aiohttp import web
 
-from demo import server
-from demo import tools
+from demo.tools import tools
+from demo.server import routes
 
 LOGGER = tools.FullLogger(__name__)
 
@@ -18,7 +18,7 @@ LOGGER = tools.FullLogger(__name__)
 def start_server():
     """start_server"""
     app: web.Application = web.Application()
-    app.add_routes([web.post('/', server.receive_request)])
+    app.add_routes([web.post('/', routes.receive_request)])
 
     setup_aiohttp_apispec(
         app=app,
