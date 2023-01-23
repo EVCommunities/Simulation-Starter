@@ -18,74 +18,18 @@ from aiodocker import Docker
 from aiodocker.containers import DockerContainer
 from aiohttp.client_exceptions import ClientError
 
-from demo.tools.tools import EnvironmentVariableValue, FullLogger, log_exception
+from demo.docker.configuration import ContainerConfiguration
+from demo.tools.tools import FullLogger, log_exception
 
 LOGGER = FullLogger(__name__)
 
 
-def get_container_name(container: DockerContainer) -> str:
+async def get_container_name(container: DockerContainer) -> str:
     """Returns the name of the given Docker container."""
     # Use a hack to get the container name because the aiodocker does not make it otherwise available.
-    return container._container.get("Names", [" "])[0][1:]  # pylint: disable=protected-access  # type: ignore
-
-
-class ContainerConfiguration:
-    """Class for holding the parameters needed when starting a Docker container instance.
-    Only parameters needed for starting containers for the simulation platform are included.
-    """
-    def __init__(self, container_name: str, docker_image: str, environment: Dict[str, EnvironmentVariableValue],
-                 networks: Union[str, List[str]], volumes: Union[str, List[str]]):
-        """
-        Sets up the parameters for the Docker container configuration to the format required by aiodocker.
-        - container_name:    the container name
-        - docker_image:      the Docker image name including a tag
-        - environment:       the environment variables and their values
-        - networks:          the names of the Docker networks for the container
-        - volumes:           the volume names and the target paths, format: <volume_name>:<target_path>[rw|ro]
-        """
-        self.__name = container_name
-        self.__image = docker_image
-        self.__environment = [
-            "=".join([
-                variable_name, str(variable_value)
-            ])
-            for variable_name, variable_value in environment.items()
-        ]
-
-        if isinstance(networks, str):
-            self.__networks = [networks]
-        else:
-            self.__networks = networks
-
-        if isinstance(volumes, str):
-            self.__volumes = [volumes]
-        else:
-            self.__volumes = volumes
-
-    @property
-    def container_name(self) -> str:
-        """The container name."""
-        return self.__name
-
-    @property
-    def image(self) -> str:
-        """The Docker image for the container."""
-        return self.__image
-
-    @property
-    def environment(self) -> List[str]:
-        """The environment variables for the Docker container."""
-        return self.__environment
-
-    @property
-    def networks(self) -> List[str]:
-        """The Docker networks for the Docker container."""
-        return self.__networks
-
-    @property
-    def volumes(self) -> List[str]:
-        """The Docker volumes for the Docker container."""
-        return self.__volumes
+    if "Name" not in container._container:  # pylint: disable=protected-access  # type: ignore
+        await container.show()  # type: ignore
+    return container._container.get("Name", "")[1:]  # pylint: disable=protected-access  # type: ignore
 
 
 class ContainerStarter:
@@ -114,11 +58,15 @@ class ContainerStarter:
         Returns the next available index for the container name prefix for a new simulation.
         If all possible indexes are already in use, returns None.
         """
-        running_containers: List[DockerContainer] = await self.__docker_client.containers.list()  # type: ignore
+        async def container_name(container: DockerContainer) -> str:
+            name = await get_container_name(container)
+            return name[len(self.PREFIX_START):][:self.PREFIX_DIGITS]
+
+        running_containers: List[DockerContainer] = await self.__docker_client.containers.list(all=True)  # type: ignore
         simulation_indexes = {
-            int(get_container_name(container)[len(self.__class__.PREFIX_START):][:self.__class__.PREFIX_DIGITS])
+            int(await container_name(container))
             for container in running_containers
-            if self.__prefix_pattern.match(get_container_name(container)) is not None
+            if self.__prefix_pattern.match(await get_container_name(container)) is not None
         }
 
         if simulation_indexes:
@@ -178,7 +126,7 @@ class ContainerStarter:
             log_exception(client_error)
             return None
 
-    async def start_container(self, configuration: ContainerConfiguration) -> Union[str, None]:
+    async def start_container(self, configuration: ContainerConfiguration) -> Optional[DockerContainer]:
         """
         Starts a Docker container with the given configuration parameters.
         Returns the names of the container or None, if there was a problem starting the container.
@@ -197,6 +145,6 @@ class ContainerStarter:
             new_container = await self.create_container(full_container_name, configuration)
             if isinstance(new_container, DockerContainer):
                 await new_container.start()  # type: ignore
-                return full_container_name
+                return new_container
 
             return None
