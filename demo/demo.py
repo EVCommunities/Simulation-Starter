@@ -6,17 +6,22 @@
 
 """Creates a configuration for SimCES platform manager and start a container using the configuration."""
 
+import asyncio
+
 from aiohttp_apispec import setup_aiohttp_apispec  # type: ignore
 from aiohttp import web
 
-from demo.tools import tools
+from demo.fetch import fetch
 from demo.server import routes
+from demo.tools import tools
 
 LOGGER = tools.FullLogger(__name__)
 
 
-def start_server():
+async def start_server() -> None:
     """start_server"""
+    await fetch.start_fetch()
+
     app: web.Application = web.Application()
     app.add_routes([web.post('/', routes.receive_request)])
 
@@ -28,10 +33,32 @@ def start_server():
         swagger_path="/docs"
     )
 
-    web.run_app(app, port=8081)  # type: ignore
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, port=8081)
+    await site.start()
+
+    LOGGER.info("")
+    LOGGER.info(f"Started a web server at {site.name}")
+    LOGGER.info("Press Ctrl+C to stop:")
+
+    # wait forever
+    await asyncio.Event().wait()
+
+
+async def close():
+    """close"""
+    await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
-    start_server()
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(start_server())
+    except KeyboardInterrupt:
+        loop.run_until_complete(close())
+    finally:
+        LOGGER.info("")
+        LOGGER.info("Web server stopped")
 
 # TODO: add proper function descriptions

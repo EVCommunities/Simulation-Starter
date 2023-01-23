@@ -351,7 +351,7 @@ def get_repository_request_params(
             filename
         )
 
-    LOGGER.error("Repository type '{}' is not supported".format(repository_type))
+    LOGGER.error(f"Repository type '{repository_type}' is not supported")
     return None, None
 
 

@@ -39,4 +39,4 @@ def from_datetime(datetime_object: datetime.datetime) -> str:
 def get_clean_time_string() -> str:
     """get_clean_time_string"""
     now = datetime.datetime.utcnow()
-    return now.isoformat().replace("-", "").replace(":", "").replace("T", "-")[:15]
+    return now.isoformat().replace("-", "").replace(":", "").replace("T", "-").replace(".", "-")

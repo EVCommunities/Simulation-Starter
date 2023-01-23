@@ -46,7 +46,7 @@ class Attributes:
     CAR_MODEL = "CarModel"
     STATION = "Station"
 
-    IC_COMPONENT = f"{IC}_{COMPONENT}"
+    IC_COMPONENT = f"{IC}{COMPONENT}"
     USER_COMPONENT = USER + COMPONENT
     STATION_COMPONENT = STATION + COMPONENT
     USER_ID = USER + ID

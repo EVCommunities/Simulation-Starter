@@ -108,7 +108,9 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
         Attributes.COMPONENTS: {
             Attributes.IC_COMPONENT: {
                 Attributes.INTELLIGENT_CONTROLLER: {
-                    Attributes.TOTAL_MAX_POWER: parameters.total_max_power
+                    Attributes.TOTAL_MAX_POWER: parameters.total_max_power,
+                    Attributes.USERS: "",
+                    Attributes.STATIONS: ""
                 }
             },
             Attributes.USER_COMPONENT: {
@@ -138,11 +140,16 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
     return yaml.safe_dump_all(documents=[json_configuration], indent=4, sort_keys=False)
 
 
-def create_yaml_file(parameters: DemoParameters) -> None:
+def get_yaml_filename() -> str:
+    """get_yaml_filename"""
+    return f"{SIMULATION_FILE_PREFIX}{time.get_clean_time_string()}.yaml"
+
+
+def create_yaml_file(parameters: DemoParameters, filename: str) -> None:
     """create_yaml_file"""
     simulation_parameters = create_simulation_configuration(parameters)
     with open(
-        file=f"{SIMULATION_FILE_PREFIX}{time.get_clean_time_string()}.yaml",
+        file=filename,
         mode="w",
         encoding="utf-8"
     ) as yaml_file:

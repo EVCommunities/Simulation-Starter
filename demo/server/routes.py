@@ -12,9 +12,14 @@ from aiohttp_apispec import docs, request_schema, response_schema  # type: ignor
 from aiohttp import web
 
 from demo import simulation
+from demo.docker.runner import ContainerConfiguration, ContainerStarter, get_container_name
+from demo.docker import configuration
 from demo.server import responses, schemas
 from demo.tools import tools
 from demo.validation import checkers
+from demo.tools.tools import FullLogger
+
+LOGGER = FullLogger(__name__)
 
 
 @docs(
@@ -52,9 +57,45 @@ async def receive_request(request: web.Request) -> web.Response:
         if isinstance(parameters, str):
             return responses.InvalidResponse(parameters).get_response()
 
-        simulation.create_yaml_file(parameters)
-        return responses.OkResponse().get_response()
+        yaml_filename = simulation.get_yaml_filename()
+        LOGGER.info(yaml_filename)
+        simulation.create_yaml_file(parameters, f"simulations/{yaml_filename}")
+
+        container_starter = ContainerStarter()
+        container_configuration = await create_container_configuration(yaml_filename)
+        if container_configuration is None:
+            error_text = "Could not create a configuration for a new Platform Manager container"
+            LOGGER.error(error_text)
+            return responses.ServerErrorResponse(error_text).get_response()
+
+        container = await container_starter.start_container(container_configuration)
+        if container is None:
+            error_text = "Could not start a new Platform Manager container"
+            LOGGER.error(error_text)
+            return responses.ServerErrorResponse(error_text).get_response()
+
+        LOGGER.info(await get_container_name(container))
+        return responses.OkResponse(await get_container_name(container)).get_response()
 
     except Exception as error:  # pylint: disable=broad-except
         tools.log_exception(error)
         return responses.ServerErrorResponse().get_response()
+
+
+async def create_container_configuration(configuration_filename: str) -> Optional[ContainerConfiguration]:
+    """create_container_configuration"""
+    manager_environment = {
+            **configuration.PLATFORM_MANAGER_ENVIRONMENT,
+            **{"SIMULATION_CONFIGURATION_FILE": f"/simulations/{configuration_filename}"}
+        }
+    LOGGER.info(str(manager_environment))
+    LOGGER.info(str(configuration.PLATFORM_MANAGER_NETWORKS))
+    LOGGER.info(str(configuration.PLATFORM_MANAGER_VOLUMES))
+
+    return ContainerConfiguration(
+        container_name=configuration.PLATFORM_MANAGER_NAME,
+        docker_image=configuration.PLATFORM_MANAGER_IMAGE,
+        environment=manager_environment,
+        networks=configuration.PLATFORM_MANAGER_NETWORKS,
+        volumes=configuration.PLATFORM_MANAGER_VOLUMES
+    )

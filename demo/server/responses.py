@@ -21,6 +21,7 @@ class DemoResponse:
     status: int
     schema: Schema
     message: str
+    information: Optional[str] = None
     error: Optional[str] = None
 
     @property
@@ -28,7 +29,8 @@ class DemoResponse:
         """get_content"""
         return (
             {"message": self.message} |
-            {} if self.error is None else {"error": self.error}
+            ({} if self.information is None else {"information": self.information}) |
+            ({} if self.error is None else {"error": self.error})
         )
 
     def get_response(self) -> web.Response:
@@ -41,12 +43,12 @@ class DemoResponse:
 
 class OkResponse(DemoResponse):
     """OkResponse"""
-    def __init__(self):
+    def __init__(self, information: Optional[str] = None):
         super().__init__(
             status=web.HTTPOk.status_code,
             schema=schemas.OkResponseSchema(),
             message=constants.OK_RESPONSE_MESSAGE,
-            error=None
+            information=information
         )
 
 
@@ -74,10 +76,10 @@ class InvalidResponse(DemoResponse):
 
 class ServerErrorResponse(DemoResponse):
     """OkResponse"""
-    def __init__(self):
+    def __init__(self, error: Optional[str] = None):
         super().__init__(
             status=web.HTTPInternalServerError.status_code,
             schema=schemas.ServerErrorSchema(),
             message=constants.SERVER_ERROR_RESPONSE_MESSAGE,
-            error=None
+            error=error
         )

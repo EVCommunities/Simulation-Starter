@@ -122,6 +122,7 @@ class DemoRequestSchema(Schema):
 class OkResponseSchema(Schema):
     """OkResponseSchema"""
     message = fields.String(load_default=constants.OK_RESPONSE_MESSAGE)
+    information = fields.String(load_defaults="Sim00_platform-container")
 
 
 class BadRequestResponseSchema(Schema):
@@ -139,3 +140,4 @@ class InvalidResponseSchema(Schema):
 class ServerErrorSchema(Schema):
     """ServerErrorSchema"""
     message = fields.String(load_default=constants.SERVER_ERROR_RESPONSE_MESSAGE)
+    error = fields.String(required=False)
