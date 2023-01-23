@@ -1,0 +1,53 @@
+{
+    "Name": "EVCommunities demo",
+    "EpochLength": 1800,
+    "TotalMaxPower": 19.5,
+    "Users": [
+        {
+            "CarBatteryCapacity": 125,
+            "CarMaxPower": 12.4,
+            "StateOfCharge": 12.3,
+            "TargetStateOfCharge": 87.5,
+            "ArrivalTime": "2023-01-23T19:00:00Z",
+            "TargetTime": "2023-01-24T07:00:00Z"
+        },
+        {
+            "CarBatteryCapacity": 150,
+            "CarMaxPower": 15.5,
+            "StateOfCharge": 27.3,
+            "TargetStateOfCharge": 84.5,
+            "ArrivalTime": "2023-01-23T17:00:00Z",
+            "TargetTime": "2023-01-24T07:30:00Z"
+        },
+        {
+            "CarBatteryCapacity": 110.5,
+            "CarMaxPower": 7.5,
+            "StateOfCharge": 42.8,
+            "TargetStateOfCharge": 79.0,
+            "ArrivalTime": "2023-01-23T18:30:00Z",
+            "TargetTime": "2023-01-24T06:00:00Z"
+        },
+        {
+            "CarBatteryCapacity": 135,
+            "CarMaxPower": 11.1,
+            "StateOfCharge": 5.4,
+            "TargetStateOfCharge": 93.5,
+            "ArrivalTime": "2023-01-23T16:30:00Z",
+            "TargetTime": "2023-01-24T09:30:00Z"
+        }
+    ],
+    "Stations": [
+        {
+            "MaxPower": 12.5
+        },
+        {
+            "MaxPower": 12.5
+        },
+        {
+            "MaxPower": 12.5
+        },
+        {
+            "MaxPower": 12.5
+        }
+    ]
+}

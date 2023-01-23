@@ -12,11 +12,15 @@
 
 import asyncio
 import functools
+import json
 import logging
 import os
 import sys
 from types import TracebackType
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, Union, cast
+
+UTC_Z = "Z"
+UTZ_VALUE = "+00:00"
 
 SIMULATION_LOG_LEVEL = "SIMULATION_LOG_LEVEL"
 SIMULATION_LOG_FILE = "SIMULATION_LOG_FILE"
@@ -244,15 +248,16 @@ def get_logger(logger_name: str, log_level: Optional[int] = None) -> logging.Log
 LOGGER = FullLogger(__name__)
 
 
-def traceback_to_str(traceback: Optional[TracebackType]) -> str:
+def traceback_to_str(traceback: Optional[TracebackType], indentation: str = "") -> str:
     """Return a string representation of the given traceback."""
     if isinstance(traceback, TracebackType):
         if traceback.tb_next is not None:
-            traceback_next = traceback_to_str(traceback.tb_next)
+            traceback_next = "\n" + traceback_to_str(traceback.tb_next, indentation)
         else:
             traceback_next = ""
-        return f"\n{traceback.tb_frame}{traceback_next}"
-
+        filename: str = traceback.tb_frame.f_code.co_filename
+        line_number: int = traceback.tb_lineno
+        return f"{indentation}file: {filename}, line: {line_number}{traceback_next}"
     return ""
 
 
@@ -261,17 +266,17 @@ DEFAULT_EXCEPTION_LOG_START = "Encountered unhandled exception:"
 
 def log_exception(
     error: BaseException,
-    logger_call: Callable[[str, object, Mapping[str, object]], None] = LOGGER.error,
+    logger_call: Callable[[str], None] = LOGGER.error,
     log_start: str = DEFAULT_EXCEPTION_LOG_START
 ) -> None:
     """Logs information from the given exception."""
+    traceback_text: str = "  Traceback: "
+    traceback_str: str = traceback_to_str(error.__traceback__, " " * len(traceback_text))[len(traceback_text):]
     logger_call(
         f"{log_start}\n" +
-        f"    Type: {type(error).__name__}\n"
-        f"    Message: {error}\n" +
-        f"    Traceback: {traceback_to_str(error.__traceback__)}",
-        ...,
-        {}
+        f"  Type: {type(error).__name__}\n" +
+        f"  Message: {error}\n" +
+        f"{traceback_text}{traceback_str}"
     )
 
 
@@ -305,3 +310,17 @@ def handle_async_exception(event_loop: Any, context: Any):
             LOGGER.warning(f"Async exception: {str(exception)}")  # type: ignore
     else:
         LOGGER.warning(f"Exception in async task: {str(context)}")
+
+
+def load_json_input(json_string: str) -> Union[Dict[str, Any], str]:
+    """load_json_input"""
+    try:
+        json_object: Union[Any, Dict[str, Any]] = json.loads(json_string)
+    except ValueError as error:
+        log_exception(error)
+        return str(error)
+
+    if not isinstance(json_object, dict):
+        return "Could not parse JSON object from the input"
+
+    return json_object

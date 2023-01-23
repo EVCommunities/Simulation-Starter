@@ -10,4 +10,4 @@ typings/*
 logfile.log
 
 # ignore test output
-test_simulation.yaml
+simulation_*.yaml
