@@ -1,0 +1,17 @@
+Type: GitHub
+Repositories:
+    - simcesplatform/simulation-manager:
+        File: component_manifest_manager.yml
+        Branch: master
+    - simcesplatform/logwriter:
+        File: component_manifest.yml
+        Branch: master
+    - EVCommunities/Components:
+        File: station_component_manifest.yml
+        Branch: main
+    - EVCommunities/Components:
+        File: component_manifest_user.yml
+        Branch: main
+    - EVCommunities/Components:
+        File: component_manifest_ic.yml
+        Branch: main
