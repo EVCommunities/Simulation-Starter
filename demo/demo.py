@@ -14,7 +14,7 @@ from aiohttp import web
 
 from demo.docker import images
 from demo.fetch import fetch
-from demo.server import routes
+from demo.server import constants, routes
 from demo.tools import tools
 
 LOGGER = tools.FullLogger(__name__)
@@ -49,7 +49,7 @@ async def start_server(webapp: WebApplication) -> None:
 
     runner = web.AppRunner(webapp.application)
     await runner.setup()
-    site = web.TCPSite(runner, port=8112)
+    site = web.TCPSite(runner, port=constants.SERVER_PORT)
     await site.start()
 
     LOGGER.info("======================")
@@ -69,11 +69,10 @@ async def close(webapp: WebApplication):
 
 if __name__ == "__main__":
     app = WebApplication()
-    loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(start_server(app))
+        asyncio.run(start_server(app))
     except KeyboardInterrupt:
-        loop.run_until_complete(close(app))
+        asyncio.run(close(app))
     finally:
         LOGGER.info("")
         LOGGER.info("Web server stopped")

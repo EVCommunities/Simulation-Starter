@@ -24,18 +24,19 @@ CONFIGURATION_FILES = [
     "rabbitmq.env"
 ]
 
+HOST_FOLDER = cast(str, EnvironmentVariable("HOST_FOLDER", str, str(Path(".").absolute())).value)
 PLATFORM_MANAGER_NAME = "platform-manager"
-PLATFORM_MANAGER_IMAGE = "ghcr.io/simcesplatform/platform-manager:latest"
+PLATFORM_MANAGER_IMAGE = cast(
+    str,
+    EnvironmentVariable("PLATFORM_MANAGER_IMAGE", str, "ghcr.io/simcesplatform/platform-manager:latest").value
+)
 PLATFORM_MANAGER_NETWORKS = [
-    "simces_platform_network",
     "simces_rabbitmq_network"
 ]
 PLATFORM_MANAGER_VOLUMES = [
-    f"{Path().absolute() / 'configuration'}:/configuration",
-    f"{Path().absolute() / 'manifests'}:/manifests:ro",
-    f"{Path().absolute() / 'simulations'}:/simulations",
+    f"{HOST_FOLDER}/manifests:/manifests:ro",
+    f"{HOST_FOLDER}/simulations:/simulations:ro",
     "simces_simulation_logs:/logs",
-    "simces_simulation_resources:/resources",
     "/var/run/docker.sock:/var/run/docker.sock:ro"
 ]
 

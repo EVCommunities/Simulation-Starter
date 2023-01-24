@@ -36,11 +36,11 @@ LOGGER = FullLogger(__name__)
     example=checkers.load_example_input(),
     add_to_refs=True
 )
-@response_schema(**responses.OkResponse().get_details())
-@response_schema(**responses.BadRequestResponse().get_details())
-@response_schema(**responses.UnauthorizedResponse().get_details())
-@response_schema(**responses.InvalidResponse().get_details())
-@response_schema(**responses.ServerErrorResponse().get_details())
+@response_schema(*responses.OkResponse().get_details())
+@response_schema(*responses.BadRequestResponse().get_details())
+@response_schema(*responses.UnauthorizedResponse().get_details())
+@response_schema(*responses.InvalidResponse().get_details())
+@response_schema(*responses.ServerErrorResponse().get_details())
 async def receive_request(request: web.Request) -> web.Response:
     """receive_request"""
     try:

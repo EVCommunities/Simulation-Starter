@@ -5,6 +5,7 @@ typings/*
 
 # ignore environment variables
 .env
+.env.template
 
 # ignore VS Code settings
 **/.vscode
@@ -14,3 +15,8 @@ typings/*
 
 # ignore test output
 simulation_*.yaml
+
+# ignore runtime configurations
+configurations/*
+manifests/*
+simulations/*

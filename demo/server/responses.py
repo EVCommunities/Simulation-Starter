@@ -7,7 +7,7 @@
 """Contains code to handle and document the REST API for the demo."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple
 
 from aiohttp import web
 from marshmallow import Schema
@@ -41,13 +41,14 @@ class DemoResponse:
             status=self.status
         )
 
-    def get_details(self) -> Dict[str, Union[int, str, Schema]]:
+    def get_details(self) -> Tuple[Schema, int, bool, str]:
         """get_details"""
-        return {
-            "schema": self.schema,
-            "code": self.status,
-            "description": self.description
-        }
+        return (
+            self.schema,
+            self.status,
+            False,
+            self.description
+        )
 
 
 class OkResponse(DemoResponse):
