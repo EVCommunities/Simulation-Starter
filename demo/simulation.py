@@ -76,7 +76,7 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
         ),
         stations=tuple(
             StationParameters(
-                station_id=f"{validation.DEFAULT_STATION_ID_PREFIX}{id_number}",
+                station_id=str(id_number),
                 max_power=station[Attributes.MAX_POWER]
             )
             for id_number, station in enumerate(json_object[Attributes.STATIONS], start=1)
@@ -114,7 +114,7 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
                 }
             },
             Attributes.USER_COMPONENT: {
-                f"{Attributes.USER}{user.user_id}": {
+                f"{Attributes.USER}_{user.user_id}": {
                     Attributes.USER_ID: user.user_id,
                     Attributes.USER_NAME: user.user_name,
                     Attributes.STATION_ID: parameters.stations[index].station_id,
@@ -129,7 +129,7 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
                 for index, user in enumerate(parameters.users)
             },
             Attributes.STATION_COMPONENT: {
-                f"{Attributes.STATION}{station.station_id}": {
+                f"s{station.station_id}": {
                     Attributes.STATION_ID: station.station_id,
                     Attributes.MAX_POWER: station.max_power
                 }
