@@ -7,7 +7,7 @@
 """Contains code to handle and document the REST API for the demo."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from marshmallow import Schema, fields
 
@@ -90,7 +90,7 @@ class StationSchema(Schema):
 
 class DemoRequestSchema(Schema):
     """RequestSchema"""
-    Name = fields.Str(
+    Name = fields.String(
         required=False,
         load_default=validation.DEFAULT_SIMULATION_NAME,
         metadata=SchemaMetadata("Name of the simulation").metadata
@@ -119,6 +119,18 @@ class DemoRequestSchema(Schema):
     )
 
 
+def get_request_header_parameters() -> List[Dict[str, Union[str, Dict[str, str]]]]:
+    """get_request_header_parameter"""
+    return [
+        {
+            "in": "header",
+            "name": constants.HEADER_PRIVATE_KEY,
+            "schema": {"type": "string"},
+            "required": "true"
+        }
+    ]
+
+
 class OkResponseSchema(Schema):
     """OkResponseSchema"""
     message = fields.String(load_default=constants.OK_RESPONSE_MESSAGE)
@@ -129,6 +141,12 @@ class BadRequestResponseSchema(Schema):
     """BadRequestResponseSchema"""
     message = fields.String(load_default=constants.BAD_REQUEST_RESPONSE_MESSAGE)
     error = fields.String(load_default=constants.DEFAULT_BAD_REQUEST_ERROR)
+
+
+class UnauthorizedResponseSchema(Schema):
+    """UnauthorizedResponseSchema"""
+    message = fields.String(load_default=constants.UNAUTHORIZED_RESPONSE_MESSAGE)
+    error = fields.String(load_default=constants.DEFAULT_UNAUTHORIZED_ERROR)
 
 
 class InvalidResponseSchema(Schema):

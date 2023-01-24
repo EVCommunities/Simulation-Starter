@@ -74,6 +74,18 @@ class BadRequestResponse(DemoResponse):
         )
 
 
+class UnauthorizedResponse(DemoResponse):
+    """UnauthorizedResponse"""
+    def __init__(self):
+        super().__init__(
+            status=web.HTTPUnauthorized.status_code,
+            schema=schemas.UnauthorizedResponseSchema(),
+            description=constants.UNAUTHORIZED_RESPONSE_DESCRIPTION,
+            message=constants.UNAUTHORIZED_RESPONSE_MESSAGE,
+            error=constants.DEFAULT_UNAUTHORIZED_ERROR
+        )
+
+
 class InvalidResponse(DemoResponse):
     """InvalidResponse"""
     def __init__(self, error: Optional[str] = None):

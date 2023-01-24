@@ -28,7 +28,8 @@ LOGGER = FullLogger(__name__)
     description=(
         "Start an electric vehicle charging demo simulation using SimCES platform " +
         "by posting the simulation parameters"
-    )
+    ),
+    parameters=schemas.get_request_header_parameters()
 )
 @request_schema(
     schema=schemas.DemoRequestSchema(),
@@ -37,14 +38,21 @@ LOGGER = FullLogger(__name__)
 )
 @response_schema(**responses.OkResponse().get_details())
 @response_schema(**responses.BadRequestResponse().get_details())
+@response_schema(**responses.UnauthorizedResponse().get_details())
 @response_schema(**responses.InvalidResponse().get_details())
 @response_schema(**responses.ServerErrorResponse().get_details())
 async def receive_request(request: web.Request) -> web.Response:
     """receive_request"""
     try:
+        private_key = request.headers.get(constants.HEADER_PRIVATE_KEY, None)
+        if private_key is None or private_key != constants.PRIVATE_KEY_VALUE:
+            LOGGER.warning(f"Invalid token used: {private_key}")
+            return responses.UnauthorizedResponse().get_response()
+
         content_length: Optional[int] = request.content_length
         if content_length is None or content_length <= 2:
-            return responses.BadRequestResponse("No content found in the message").get_response()
+            LOGGER.info("No content found in the request")
+            return responses.BadRequestResponse("No content found in the request").get_response()
 
         content = await request.content.read()
         content_str = content.decode(encoding="utf-8")
