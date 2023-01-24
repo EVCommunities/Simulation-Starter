@@ -126,7 +126,8 @@ def get_request_header_parameters() -> List[Dict[str, Union[str, Dict[str, str]]
             "in": "header",
             "name": constants.HEADER_PRIVATE_KEY,
             "schema": {"type": "string"},
-            "required": "true"
+            "required": "true",
+            "default": "invalid"
         }
     ]
 

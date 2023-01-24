@@ -11,8 +11,8 @@ from typing import cast
 from demo.tools.tools import EnvironmentVariable
 
 
-HEADER_PRIVATE_KEY = "private-key"
-PRIVATE_KEY_VALUE = cast(str, EnvironmentVariable("SERVER_PRIVATE_KEY", str, "missing").value)
+HEADER_PRIVATE_KEY = "private-token"
+PRIVATE_KEY_VALUE = cast(str, EnvironmentVariable("SERVER_PRIVATE_TOKEN", str, "missing").value)
 
 OK_RESPONSE_MESSAGE = "The simulation has been started"
 BAD_REQUEST_RESPONSE_MESSAGE = "Bad request"
