@@ -12,6 +12,7 @@ from typing import Optional
 from aiohttp_apispec import setup_aiohttp_apispec  # type: ignore
 from aiohttp import web
 
+from demo.docker import images
 from demo.fetch import fetch
 from demo.server import routes
 from demo.tools import tools
@@ -27,7 +28,13 @@ class WebApplication:
 
 async def start_server(webapp: WebApplication) -> None:
     """start_server"""
+    LOGGER.info("Fetching manifest files:")
+    LOGGER.info("========================")
     await fetch.start_fetch()
+    LOGGER.info("======================")
+    LOGGER.info("Pulling Docker images:")
+    LOGGER.info("======================")
+    await images.pull_images()
 
     webapp.application = web.Application()
     webapp.application.add_routes([web.post('/', routes.receive_request)])
@@ -42,10 +49,10 @@ async def start_server(webapp: WebApplication) -> None:
 
     runner = web.AppRunner(webapp.application)
     await runner.setup()
-    site = web.TCPSite(runner, port=8111)
+    site = web.TCPSite(runner, port=8112)
     await site.start()
 
-    LOGGER.info("")
+    LOGGER.info("======================")
     LOGGER.info(f"Started a web server at {site.name}")
     LOGGER.info("Press Ctrl+C to stop:")
 
