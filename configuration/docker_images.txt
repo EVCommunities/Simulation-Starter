@@ -2,3 +2,6 @@ ghcr.io/simcesplatform/platform-manager:latest
 ghcr.io/simcesplatform/simulation-manager:latest
 ghcr.io/simcesplatform/logwriter:latest
 ghcr.io/simcesplatform/manifest-fetcher:latest
+ghcr.io/evcommunities/ic-component:latest
+ghcr.io/evcommunities/user-component:latest
+ghcr.io/evcommunities/station-component:latest

@@ -7,7 +7,7 @@ Repositories:
         File: component_manifest.yml
         Branch: master
     - EVCommunities/Components:
-        File: station_component_manifest.yml
+        File: component_manifest_station.yml
         Branch: main
     - EVCommunities/Components:
         File: component_manifest_user.yml
