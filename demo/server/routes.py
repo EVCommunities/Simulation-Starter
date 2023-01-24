@@ -6,7 +6,7 @@
 
 """Contains code to handle and document the REST API for the demo."""
 
-from typing import Optional
+from typing import AsyncGenerator, List, Optional
 
 from aiohttp_apispec import docs, request_schema, response_schema  # type: ignore
 from aiohttp import web
@@ -14,7 +14,7 @@ from aiohttp import web
 from demo import simulation
 from demo.docker.runner import ContainerConfiguration, ContainerStarter, get_container_name
 from demo.docker import configuration
-from demo.server import responses, schemas
+from demo.server import constants, responses, schemas
 from demo.tools import tools
 from demo.validation import checkers
 from demo.tools.tools import FullLogger
@@ -35,10 +35,10 @@ LOGGER = FullLogger(__name__)
     example=checkers.load_example_input(),
     add_to_refs=True
 )
-@response_schema(responses.OkResponse().schema, responses.OkResponse().status)
-@response_schema(responses.BadRequestResponse().schema, responses.BadRequestResponse().status)
-@response_schema(responses.InvalidResponse().schema, responses.InvalidResponse().status)
-@response_schema(responses.ServerErrorResponse().schema, responses.ServerErrorResponse().status)
+@response_schema(**responses.OkResponse().get_details())
+@response_schema(**responses.BadRequestResponse().get_details())
+@response_schema(**responses.InvalidResponse().get_details())
+@response_schema(**responses.ServerErrorResponse().get_details())
 async def receive_request(request: web.Request) -> web.Response:
     """receive_request"""
     try:
@@ -66,31 +66,46 @@ async def receive_request(request: web.Request) -> web.Response:
         if container_configuration is None:
             error_text = "Could not create a configuration for a new Platform Manager container"
             LOGGER.error(error_text)
+            await container_starter.close()
             return responses.ServerErrorResponse(error_text).get_response()
 
         container = await container_starter.start_container(container_configuration)
         if container is None:
             error_text = "Could not start a new Platform Manager container"
             LOGGER.error(error_text)
+            await container_starter.close()
             return responses.ServerErrorResponse(error_text).get_response()
 
-        LOGGER.debug(f"Started Docker container {await get_container_name(container)}")
+        LOGGER.debug(f"Started container {await get_container_name(container)}")
+        container_logs = container.log(stdout=True, follow=True)  # type: ignore
+        stored_logs: List[str] = []
+        if isinstance(container_logs, AsyncGenerator):
+            async for item in container_logs:
+                if "started successfully" in item:
+                    simulation_id = item.split(": ")[-1].strip()
+                    LOGGER.info(f"Simulation started with id: {simulation_id}")
+                    await container_starter.close()
+                    return responses.OkResponse(simulation_id).get_response()
+                stored_logs.append(item)
+
+        stored_logs_str = "\n".join(["---".join(log.split("---")[1:]).strip() for log in stored_logs])
+        LOGGER.warning(f"Platform manager could not start the simulation:\n{stored_logs_str}")
         await container_starter.close()
-        return responses.OkResponse(await get_container_name(container)).get_response()
+        return responses.ServerErrorResponse(constants.SIMULATION_CONTAINER_ERROR).get_response()
 
     except Exception as error:  # pylint: disable=broad-except
         tools.log_exception(error)
         if "container_starter" in locals():
             await container_starter.close()  # type: ignore
-        return responses.ServerErrorResponse().get_response()
+        return responses.ServerErrorResponse(str(error)).get_response()
 
 
 async def create_container_configuration(configuration_filename: str) -> Optional[ContainerConfiguration]:
     """create_container_configuration"""
     manager_environment = {
-            **configuration.PLATFORM_MANAGER_ENVIRONMENT,
-            **{"SIMULATION_CONFIGURATION_FILE": f"/simulations/{configuration_filename}"}
-        }
+        **configuration.PLATFORM_MANAGER_ENVIRONMENT,
+        **{"SIMULATION_CONFIGURATION_FILE": f"/simulations/{configuration_filename}"}
+    }
 
     return ContainerConfiguration(
         container_name=configuration.PLATFORM_MANAGER_NAME,

@@ -7,7 +7,7 @@
 """Contains code to handle and document the REST API for the demo."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from aiohttp import web
 from marshmallow import Schema
@@ -20,8 +20,9 @@ class DemoResponse:
     """DemoResponse"""
     status: int
     schema: Schema
+    description: str
     message: str
-    information: Optional[str] = None
+    simulation_id: Optional[str] = None
     error: Optional[str] = None
 
     @property
@@ -29,7 +30,7 @@ class DemoResponse:
         """get_content"""
         return (
             {"message": self.message} |
-            ({} if self.information is None else {"information": self.information}) |
+            ({} if self.simulation_id is None else {"simulation_id": self.simulation_id}) |
             ({} if self.error is None else {"error": self.error})
         )
 
@@ -40,46 +41,58 @@ class DemoResponse:
             status=self.status
         )
 
+    def get_details(self) -> Dict[str, Union[int, str, Schema]]:
+        """get_details"""
+        return {
+            "schema": self.schema,
+            "code": self.status,
+            "description": self.description
+        }
+
 
 class OkResponse(DemoResponse):
     """OkResponse"""
-    def __init__(self, information: Optional[str] = None):
+    def __init__(self, simulation_id: Optional[str] = None):
         super().__init__(
             status=web.HTTPOk.status_code,
             schema=schemas.OkResponseSchema(),
+            description=constants.OK_RESPONSE_DESCRIPTION,
             message=constants.OK_RESPONSE_MESSAGE,
-            information=information
+            simulation_id=simulation_id
         )
 
 
 class BadRequestResponse(DemoResponse):
-    """OkResponse"""
+    """BadRequestResponse"""
     def __init__(self, error: Optional[str] = None):
         super().__init__(
             status=web.HTTPBadRequest.status_code,
             schema=schemas.BadRequestResponseSchema(),
+            description=constants.BAD_REQUEST_RESPONSE_DESCRIPTION,
             message=constants.BAD_REQUEST_RESPONSE_MESSAGE,
             error=error
         )
 
 
 class InvalidResponse(DemoResponse):
-    """OkResponse"""
+    """InvalidResponse"""
     def __init__(self, error: Optional[str] = None):
         super().__init__(
             status=web.HTTPUnprocessableEntity.status_code,
             schema=schemas.InvalidResponseSchema(),
+            description=constants.INVALID_RESPONSE_DESCRIPTION,
             message=constants.INVALID_RESPONSE_MESSAGE,
             error=error
         )
 
 
 class ServerErrorResponse(DemoResponse):
-    """OkResponse"""
+    """ServerErrorResponse"""
     def __init__(self, error: Optional[str] = None):
         super().__init__(
             status=web.HTTPInternalServerError.status_code,
             schema=schemas.ServerErrorSchema(),
+            description=constants.SERVER_ERROR_RESPONSE_DESCRIPTION,
             message=constants.SERVER_ERROR_RESPONSE_MESSAGE,
             error=error
         )
