@@ -15,6 +15,8 @@ HEADER_PRIVATE_KEY = "private-token"
 SERVER_PORT = cast(int, EnvironmentVariable("SERVER_PORT", int, 8500).value)
 PRODUCTION_MODE = cast(bool, EnvironmentVariable("PRODUCTION_MODE", bool, False).value)
 
+SERVER_BASE_PATH = cast(str, EnvironmentVariable("SERVER_BASE_PATH", str, "").value)
+
 OK_RESPONSE_MESSAGE = "The simulation has been started"
 BAD_REQUEST_RESPONSE_MESSAGE = "Bad request"
 UNAUTHORIZED_RESPONSE_MESSAGE = "Unauthorized"

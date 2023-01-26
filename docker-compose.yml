@@ -10,6 +10,7 @@ services:
         restart: "always"
         environment:
             HOST_FOLDER: ${HOST_FOLDER}
+            SERVER_BASE_PATH: ${SERVER_BASE_PATH}
             PRODUCTION_MODE: ${PRODUCTION_MODE}
             SERVER_PORT: ${SERVER_PORT:-8500}
             SIMULATION_LOG_LEVEL: ${SIMULATION_LOG_LEVEL:-10}
