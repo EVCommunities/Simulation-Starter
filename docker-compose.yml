@@ -18,6 +18,7 @@ services:
             CONFIGURATION_FILE_PATH: ${CONFIGURATION_FILE_PATH:-configuration}
             PLATFORM_MANAGER_IMAGE: ${PLATFORM_MANAGER_IMAGE}
             SERVER_PRIVATE_TOKEN: ${SERVER_PRIVATE_TOKEN}
+            VERBOSE: ${VERBOSE:-false}
         ports:
             - ${SERVER_PORT:-8500}:${SERVER_PORT:-8500}
         volumes:

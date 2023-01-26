@@ -14,6 +14,7 @@ from demo.tools.tools import EnvironmentVariable
 HEADER_PRIVATE_KEY = "private-token"
 SERVER_PORT = cast(int, EnvironmentVariable("SERVER_PORT", int, 8500).value)
 PRODUCTION_MODE = cast(bool, EnvironmentVariable("PRODUCTION_MODE", bool, False).value)
+VERBOSE = cast(bool, EnvironmentVariable("VERBOSE", bool, False).value)
 
 SERVER_BASE_PATH = cast(str, EnvironmentVariable("SERVER_BASE_PATH", str, "").value)
 

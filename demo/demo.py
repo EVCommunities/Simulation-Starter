@@ -37,15 +37,15 @@ async def start_server(webapp: WebApplication) -> None:
     await images.pull_images()
 
     webapp.application = web.Application()
-    webapp.application.add_routes([web.post(f"/{constants.SERVER_BASE_PATH}/", routes.receive_request)])
+    webapp.application.add_routes([web.post(f"{constants.SERVER_BASE_PATH}/", routes.receive_request)])
 
     setup_aiohttp_apispec(
         app=webapp.application,
         title="EVCommunities demo API",
         version="v1",
-        url=f"/{constants.SERVER_BASE_PATH}/docs/swagger.json",
-        swagger_path=f"/{constants.SERVER_BASE_PATH}/docs",
-        static_path=f"/{constants.SERVER_BASE_PATH}/docs/static/swagger"
+        url=f"{constants.SERVER_BASE_PATH}/docs/swagger.json",
+        swagger_path=f"{constants.SERVER_BASE_PATH}/docs",
+        static_path=f"{constants.SERVER_BASE_PATH}/docs/static/swagger"
     )
 
     runner = web.AppRunner(webapp.application)

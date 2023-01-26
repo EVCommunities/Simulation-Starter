@@ -89,6 +89,8 @@ async def receive_request(request: web.Request) -> web.Response:
         stored_logs: List[str] = []
         if isinstance(container_logs, AsyncGenerator):
             async for item in container_logs:
+                if constants.VERBOSE:
+                    LOGGER.debug(item.strip())
                 if "started successfully" in item:
                     simulation_id = item.split(": ")[-1].strip()
                     LOGGER.info(f"Simulation started with id: {simulation_id}")
