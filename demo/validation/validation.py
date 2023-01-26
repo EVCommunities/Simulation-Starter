@@ -43,7 +43,8 @@ class Checkers:
             Attributes.STATE_OF_CHARGE,
             Attributes.TARGET_STATE_OF_CHARGE,
             Attributes.ARRIVAL_TIME,
-            Attributes.TARGET_TIME
+            Attributes.TARGET_TIME,
+            Attributes.STATION_ID
         ],
         default_values={},
         attribute_checkers={
@@ -76,6 +77,11 @@ class Checkers:
                 allowed_types=[str],
                 check_function=lambda x: time.to_datetime(x) is not None,
                 error_description="The leaving time must be valid ISO 8601 format datetime string"
+            ),
+            Attributes.STATION_ID: AttributeChecker(
+                allowed_types=[str],
+                check_function=lambda x: len(x) > 0,
+                error_description="The station id for a user must not be empty"
             )
         },
         additional_checkers=[
@@ -97,7 +103,8 @@ class Checkers:
 
     STATION_CHECKER = DictionaryChecker(
         required_attributes=[
-            Attributes.MAX_POWER
+            Attributes.MAX_POWER,
+            Attributes.STATION_ID
         ],
         default_values={},
         attribute_checkers={
@@ -105,6 +112,11 @@ class Checkers:
                 allowed_types=[int, float],
                 check_function=lambda x: 0 < x <= MAXIMUM_ALLOWED_VALUE,
                 error_description=f"The max station charging power must be positive and at most {MAXIMUM_ALLOWED_VALUE}"
+            ),
+            Attributes.STATION_ID: AttributeChecker(
+                allowed_types=[str],
+                check_function=lambda x: len(x) > 0,
+                error_description="The station id must not be empty"
             )
         },
         additional_checkers=[]
@@ -154,18 +166,39 @@ class Checkers:
         additional_checkers=[
             MultiAttributeChecker(
                 attribute_names=[Attributes.USERS, Attributes.STATIONS],
-                check_function=lambda x, y: len(x) == len(y),
-                error_description="The number of users and stations must match"
+                check_function=lambda users, stations: all(
+                    user[Attributes.STATION_ID] in [station[Attributes.STATION_ID] for station in stations]
+                    for user in users
+                ),
+                error_description="All stations that users are connected to must be part of the simulation"
             ),
             MultiAttributeChecker(
                 attribute_names=[Attributes.USERS],
                 check_function=(
-                    lambda x: time.get_time_difference(
-                        min(user[Attributes.ARRIVAL_TIME] for user in x),
-                        max(user[Attributes.TARGET_TIME] for user in x),
+                    lambda users: time.get_time_difference(
+                        min(user[Attributes.ARRIVAL_TIME] for user in users),
+                        max(user[Attributes.TARGET_TIME] for user in users),
                     ) <= MAX_SIMULATION_LENGTH
                 ),
                 error_description=f"The maximum length for a simulation is {MAX_SIMULATION_LENGTH // 3600} hours"
+            ),
+            MultiAttributeChecker(
+                attribute_names=[Attributes.USERS],
+                check_function=lambda users: all(
+                    all(
+                        (
+                            same_station_user[Attributes.ARRIVAL_TIME] >= user[Attributes.TARGET_TIME] or
+                            same_station_user[Attributes.TARGET_TIME] <= user[Attributes.ARRIVAL_TIME]
+                        )
+                        for same_station_index, same_station_user in enumerate(users)
+                        if (
+                            same_station_index != index and
+                            same_station_user[Attributes.STATION_ID] == user[Attributes.STATION_ID]
+                        )
+                    )
+                    for index, user in enumerate(users)
+                ),
+                error_description="Multiple users cannot be connected to the same station at the same time"
             )
         ]
     )

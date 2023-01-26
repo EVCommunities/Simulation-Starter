@@ -8,6 +8,7 @@
             "CarMaxPower": 12.4,
             "StateOfCharge": 12.3,
             "TargetStateOfCharge": 87.5,
+            "StationId": "1",
             "ArrivalTime": "2023-01-23T19:00:00Z",
             "TargetTime": "2023-01-24T07:00:00Z"
         },
@@ -16,6 +17,7 @@
             "CarMaxPower": 15.5,
             "StateOfCharge": 27.3,
             "TargetStateOfCharge": 84.5,
+            "StationId": "2",
             "ArrivalTime": "2023-01-23T17:00:00Z",
             "TargetTime": "2023-01-24T07:30:00Z"
         },
@@ -24,6 +26,7 @@
             "CarMaxPower": 7.5,
             "StateOfCharge": 42.8,
             "TargetStateOfCharge": 79.0,
+            "StationId": "3",
             "ArrivalTime": "2023-01-23T18:30:00Z",
             "TargetTime": "2023-01-24T06:00:00Z"
         },
@@ -32,21 +35,26 @@
             "CarMaxPower": 11.1,
             "StateOfCharge": 5.4,
             "TargetStateOfCharge": 93.5,
+            "StationId": "4",
             "ArrivalTime": "2023-01-23T16:30:00Z",
             "TargetTime": "2023-01-24T09:30:00Z"
         }
     ],
     "Stations": [
         {
+            "StationId": "1",
             "MaxPower": 12.5
         },
         {
+            "StationId": "2",
             "MaxPower": 12.5
         },
         {
+            "StationId": "3",
             "MaxPower": 12.5
         },
         {
+            "StationId": "4",
             "MaxPower": 12.5
         }
     ]

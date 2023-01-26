@@ -36,6 +36,7 @@ class UserParameters:
     car_max_power: float
     state_of_charge: float
     target_state_of_charge: float
+    station_id: str
     arrival_time: str
     target_time: str
 
@@ -69,6 +70,7 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
                 car_max_power=user[Attributes.CAR_MAX_POWER],
                 state_of_charge=user[Attributes.STATE_OF_CHARGE],
                 target_state_of_charge=user[Attributes.TARGET_STATE_OF_CHARGE],
+                station_id=user[Attributes.STATION_ID],
                 arrival_time=user[Attributes.ARRIVAL_TIME],
                 target_time=user[Attributes.TARGET_TIME]
             )
@@ -76,10 +78,10 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
         ),
         stations=tuple(
             StationParameters(
-                station_id=str(id_number),
+                station_id=station[Attributes.STATION_ID],
                 max_power=station[Attributes.MAX_POWER]
             )
-            for id_number, station in enumerate(json_object[Attributes.STATIONS], start=1)
+            for station in json_object[Attributes.STATIONS]
         )
     )
 
@@ -117,7 +119,7 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
                 f"{Attributes.USER}_{user.user_id}": {
                     Attributes.USER_ID: user.user_id,
                     Attributes.USER_NAME: user.user_name,
-                    Attributes.STATION_ID: parameters.stations[index].station_id,
+                    Attributes.STATION_ID: user.station_id,
                     Attributes.ARRIVAL_TIME: user.arrival_time,
                     Attributes.STATE_OF_CHARGE: user.state_of_charge,
                     Attributes.CAR_BATTERY_CAPACITY: user.car_battery_capacity,
@@ -126,10 +128,10 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
                     Attributes.TARGET_STATE_OF_CHARGE: user.target_state_of_charge,
                     Attributes.TARGET_TIME: user.target_time
                 }
-                for index, user in enumerate(parameters.users)
+                for user in parameters.users
             },
             Attributes.STATION_COMPONENT: {
-                f"s{station.station_id}": {
+                f"{Attributes.STATION}_{station.station_id}": {
                     Attributes.STATION_ID: station.station_id,
                     Attributes.MAX_POWER: station.max_power
                 }
