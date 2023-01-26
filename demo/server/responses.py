@@ -71,7 +71,7 @@ class BadRequestResponse(DemoResponse):
             schema=schemas.BadRequestResponseSchema(),
             description=constants.BAD_REQUEST_RESPONSE_DESCRIPTION,
             message=constants.BAD_REQUEST_RESPONSE_MESSAGE,
-            error=error
+            error=constants.get_error_string(error, constants.DEFAULT_BAD_REQUEST_ERROR)
         )
 
 
@@ -107,5 +107,5 @@ class ServerErrorResponse(DemoResponse):
             schema=schemas.ServerErrorSchema(),
             description=constants.SERVER_ERROR_RESPONSE_DESCRIPTION,
             message=constants.SERVER_ERROR_RESPONSE_MESSAGE,
-            error=error
+            error=constants.get_error_string(error, constants.SIMULATION_CONTAINER_ERROR)
         )

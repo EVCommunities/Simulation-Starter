@@ -81,7 +81,6 @@ class BaseCollectionChecker:
             if not isinstance(value, tuple(checker.allowed_types)):
                 return f"Invalid type for {info_text}"
             if not checker.check_function(value):
-                LOGGER.info(value)
                 return checker.error_description
 
         elif isinstance(checker, ListChecker) and not isinstance(value, list):
