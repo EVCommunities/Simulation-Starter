@@ -75,6 +75,13 @@ class UserSchema(Schema):
             validation.EXAMPLE_TARGET_TIME
         ).metadata
     )
+    StationId = fields.String(
+        required=True,
+        metadata=SchemaMetadata(
+            "The id for the charging station the user is going to use",
+            validation.EXAMPLE_STATION_ID
+        ).metadata
+    )
 
 
 class StationSchema(Schema):
@@ -84,6 +91,13 @@ class StationSchema(Schema):
         metadata=SchemaMetadata(
             "The maximum power the station can output (kW)",
             validation.EXAMPLE_STATION_MAX_POWER
+        ).metadata
+    )
+    StationId = fields.String(
+        required=True,
+        metadata=SchemaMetadata(
+            "The id for the charging station",
+            validation.EXAMPLE_STATION_ID
         ).metadata
     )
 
