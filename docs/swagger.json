@@ -1,0 +1,304 @@
+{
+    "paths": {
+        "/": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/OkResponse"
+                        },
+                        "description": "Successful simulation start"
+                    },
+                    "400": {
+                        "schema": {
+                            "$ref": "#/definitions/BadRequestResponse"
+                        },
+                        "description": "Input contained errors"
+                    },
+                    "401": {
+                        "schema": {
+                            "$ref": "#/definitions/UnauthorizedResponse"
+                        },
+                        "description": "Request with incorrect authorization"
+                    },
+                    "422": {
+                        "schema": {
+                            "$ref": "#/definitions/InvalidResponse"
+                        },
+                        "description": "Input could not be validated"
+                    },
+                    "500": {
+                        "schema": {
+                            "$ref": "#/definitions/ServerError"
+                        },
+                        "description": "Error while trying to start the simulation"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "private-token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": "true",
+                        "default": "invalid"
+                    },
+                    {
+                        "in": "body",
+                        "required": false,
+                        "name": "body",
+                        "schema": {
+                            "$ref": "#/definitions/DemoRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "demo"
+                ],
+                "summary": "Start an EV charging demo simulation",
+                "description": "Start an electric vehicle charging demo simulation using SimCES platform by posting the simulation parameters",
+                "produces": [
+                    "application/json"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "EVCommunities demo API",
+        "version": "v1"
+    },
+    "swagger": "2.0",
+    "definitions": {
+        "User": {
+            "type": "object",
+            "properties": {
+                "ArrivalTime": {
+                    "type": "string",
+                    "example": "2023-01-23T18:00:00Z"
+                },
+                "CarBatteryCapacity": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 140.0
+                },
+                "CarMaxPower": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 12.5
+                },
+                "StationId": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "TargetTime": {
+                    "type": "string",
+                    "example": "2020-01-24T07:00:00Z"
+                },
+                "TargetStateOfCharge": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 85.0
+                },
+                "StateOfCharge": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 17.5
+                }
+            },
+            "required": [
+                "ArrivalTime",
+                "CarBatteryCapacity",
+                "CarMaxPower",
+                "StateOfCharge",
+                "StationId",
+                "TargetStateOfCharge",
+                "TargetTime"
+            ]
+        },
+        "Station": {
+            "type": "object",
+            "properties": {
+                "MaxPower": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 15.0
+                },
+                "StationId": {
+                    "type": "string",
+                    "example": "1"
+                }
+            },
+            "required": [
+                "MaxPower",
+                "StationId"
+            ]
+        },
+        "DemoRequest": {
+            "type": "object",
+            "properties": {
+                "Users": {
+                    "description": "The users participating in the simulation",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/User"
+                    }
+                },
+                "Stations": {
+                    "description": "The stations participating in the simulation",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Station"
+                    }
+                },
+                "EpochLength": {
+                    "type": "integer",
+                    "format": "int32",
+                    "default": 3600,
+                    "description": "The epoch length for the simulation (s)"
+                },
+                "Name": {
+                    "type": "string",
+                    "default": "EVCommunities demo",
+                    "description": "Name of the simulation"
+                },
+                "TotalMaxPower": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 23.5
+                }
+            },
+            "required": [
+                "Stations",
+                "TotalMaxPower",
+                "Users"
+            ],
+            "example": {
+                "Name": "EVCommunities demo",
+                "EpochLength": 1800,
+                "TotalMaxPower": 19.5,
+                "Users": [
+                    {
+                        "CarBatteryCapacity": 125,
+                        "CarMaxPower": 12.4,
+                        "StateOfCharge": 12.3,
+                        "TargetStateOfCharge": 87.5,
+                        "StationId": "1",
+                        "ArrivalTime": "2023-01-23T19:00:00Z",
+                        "TargetTime": "2023-01-24T07:00:00Z"
+                    },
+                    {
+                        "CarBatteryCapacity": 150,
+                        "CarMaxPower": 15.5,
+                        "StateOfCharge": 27.3,
+                        "TargetStateOfCharge": 84.5,
+                        "StationId": "2",
+                        "ArrivalTime": "2023-01-23T17:00:00Z",
+                        "TargetTime": "2023-01-24T07:30:00Z"
+                    },
+                    {
+                        "CarBatteryCapacity": 110.5,
+                        "CarMaxPower": 7.5,
+                        "StateOfCharge": 42.8,
+                        "TargetStateOfCharge": 79.0,
+                        "StationId": "3",
+                        "ArrivalTime": "2023-01-23T18:30:00Z",
+                        "TargetTime": "2023-01-24T06:00:00Z"
+                    },
+                    {
+                        "CarBatteryCapacity": 135,
+                        "CarMaxPower": 11.1,
+                        "StateOfCharge": 5.4,
+                        "TargetStateOfCharge": 93.5,
+                        "StationId": "4",
+                        "ArrivalTime": "2023-01-23T16:30:00Z",
+                        "TargetTime": "2023-01-24T09:30:00Z"
+                    }
+                ],
+                "Stations": [
+                    {
+                        "StationId": "1",
+                        "MaxPower": 12.5
+                    },
+                    {
+                        "StationId": "2",
+                        "MaxPower": 12.5
+                    },
+                    {
+                        "StationId": "3",
+                        "MaxPower": 12.5
+                    },
+                    {
+                        "StationId": "4",
+                        "MaxPower": 12.5
+                    }
+                ]
+            }
+        },
+        "ServerError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "default": "Problem when trying to start the simulation"
+                },
+                "message": {
+                    "type": "string",
+                    "default": "Internal server error"
+                }
+            }
+        },
+        "InvalidResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "default": "Invalid value for attribute 'StateOfCharge'"
+                },
+                "message": {
+                    "type": "string",
+                    "default": "Validation error"
+                }
+            }
+        },
+        "UnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "default": "Invalid or missing token"
+                },
+                "message": {
+                    "type": "string",
+                    "default": "Unauthorized"
+                }
+            }
+        },
+        "BadRequestResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "default": "Could not parse JSON contents"
+                },
+                "message": {
+                    "type": "string",
+                    "default": "Bad request"
+                }
+            }
+        },
+        "OkResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "default": "The simulation has been started"
+                },
+                "simulation_id": {
+                    "type": "string",
+                    "default": "2023-01-24T12:00:00.000Z"
+                }
+            }
+        }
+    }
+}
