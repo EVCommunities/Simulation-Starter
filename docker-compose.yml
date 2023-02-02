@@ -9,14 +9,14 @@ services:
         container_name: evcommunities_simulation_starter
         restart: "always"
         environment:
-            HOST_FOLDER: ${HOST_FOLDER}
-            SERVER_BASE_PATH: ${SERVER_BASE_PATH}
-            PRODUCTION_MODE: ${PRODUCTION_MODE}
+            HOST_FOLDER: ${HOST_FOLDER:-$pwd}
+            SERVER_BASE_PATH: ${SERVER_BASE_PATH:-}
+            PRODUCTION_MODE: ${PRODUCTION_MODE:-false}
             SERVER_PORT: ${SERVER_PORT:-8500}
             SIMULATION_LOG_LEVEL: ${SIMULATION_LOG_LEVEL:-10}
             SIMULATION_LOG_FILE: ${SIMULATION_LOG_FILE:-simulation_starter.log}
             CONFIGURATION_FILE_PATH: ${CONFIGURATION_FILE_PATH:-configuration}
-            PLATFORM_MANAGER_IMAGE: ${PLATFORM_MANAGER_IMAGE}
+            PLATFORM_MANAGER_IMAGE: ${PLATFORM_MANAGER_IMAGE:-ghcr.io/simcesplatform/platform-manager:latest}
             SERVER_PRIVATE_TOKEN: ${SERVER_PRIVATE_TOKEN}
             VERBOSE: ${VERBOSE:-false}
         ports:

@@ -13,3 +13,5 @@ Quick instructions:
     ```
 
 6. The web server is started at address `http://localhost:8500` and the API documentation can be accessed at `http://localhost:8500/docs`. The port number might be different depending on the setting at `.env`.
+
+The simulation manager requires some of the Docker volumes and Docker networks that are created when installing the SimCES simulation platform to be available.
