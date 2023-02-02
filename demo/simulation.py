@@ -110,9 +110,7 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
         Attributes.COMPONENTS: {
             Attributes.IC_COMPONENT: {
                 Attributes.INTELLIGENT_CONTROLLER: {
-                    Attributes.TOTAL_MAX_POWER: parameters.total_max_power,
-                    Attributes.USERS: "",
-                    Attributes.STATIONS: ""
+                    Attributes.TOTAL_MAX_POWER: parameters.total_max_power
                 }
             },
             Attributes.USER_COMPONENT: {
