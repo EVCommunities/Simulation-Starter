@@ -57,9 +57,6 @@ def user_name_generator(start: int = 1) -> Generator[str, None, None]:
 
 class Checkers:
     """ParameterCheckers"""
-    USER_ID_GENERATOR: Generator[int, None, None] = user_id_generator()
-    USER_NAME_GENERATOR: Generator[str, None, None] = user_name_generator()
-
     USER_CHECKER = DictionaryChecker(
         required_attributes=[
             Attributes.CAR_BATTERY_CAPACITY,
@@ -71,8 +68,8 @@ class Checkers:
             Attributes.STATION_ID
         ],
         default_values={
-            Attributes.USER_ID: USER_ID_GENERATOR,
-            Attributes.USER_NAME: USER_NAME_GENERATOR
+            Attributes.USER_ID: user_id_generator(),
+            Attributes.USER_NAME: user_name_generator()
         },
         attribute_checkers={
             Attributes.CAR_BATTERY_CAPACITY: AttributeChecker(
@@ -255,3 +252,11 @@ class Checkers:
             )
         ]
     )
+
+    @classmethod
+    def reset_generators(cls) -> None:
+        """reset_generators"""
+        cls.USER_CHECKER.default_values = {
+            Attributes.USER_ID: user_id_generator(),
+            Attributes.USER_NAME: user_name_generator()
+        }

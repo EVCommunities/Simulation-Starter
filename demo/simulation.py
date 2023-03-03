@@ -54,6 +54,7 @@ class DemoParameters:
 def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, str]:
     """validate_json_input"""
     validity_check = validation.Checkers.PARAMETER_CHECKER.check_for_errors(json_object)
+    validation.Checkers.reset_generators()
     if validity_check is not None:
         LOGGER.warning(validity_check)
         return validity_check
