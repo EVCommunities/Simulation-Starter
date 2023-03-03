@@ -98,7 +98,7 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
         LOGGER.warning("Could not determine the end time for the simulation")
         return ""
     simulation_start_time = time.from_datetime(earliest_arrival_time - timedelta(seconds=parameters.epoch_length))
-    max_epoch_count = (latest_leaving_time - earliest_arrival_time).seconds // parameters.epoch_length + 2
+    max_epoch_count = int((latest_leaving_time - earliest_arrival_time).total_seconds()) // parameters.epoch_length + 2
 
     json_configuration = {
         Attributes.SIMULATION: {
