@@ -12,11 +12,15 @@ from typing import Optional
 UTC_Z = "Z"
 UTZ_VALUE = "+00:00"
 
+DAY_TO_SECONDS = 86400
+SECOND_TO_MICROSECONDS = 1000000
+
 
 def to_datetime(datetime_string: str) -> Optional[datetime.datetime]:
     """to_datetime"""
     try:
-        return datetime.datetime.fromisoformat(datetime_string.replace(UTC_Z, UTZ_VALUE))
+        return datetime.datetime.fromisoformat(datetime_string.replace(UTC_Z, UTZ_VALUE)) \
+                                .astimezone(datetime.timezone.utc)
     except ValueError:
         return None
 
@@ -40,3 +44,38 @@ def get_clean_time_string() -> str:
     """get_clean_time_string"""
     now = datetime.datetime.utcnow()
     return now.isoformat().replace("-", "").replace(":", "").replace("T", "-").replace(".", "-")
+
+
+def to_microseconds(duration: datetime.timedelta) -> int:
+    """to_microseconds"""
+    return (duration.days * DAY_TO_SECONDS + duration.seconds) * SECOND_TO_MICROSECONDS + duration.microseconds
+
+
+def to_sanitized_datetime(datetime_string: str, duration: datetime.timedelta) -> Optional[datetime.datetime]:
+    """to_sanitized_datetime"""
+    if duration.total_seconds() == 0:
+        return None
+
+    original_datetime = to_datetime(datetime_string)
+    if original_datetime is None:
+        return None
+
+    day_start = original_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+    duration_microseconds = to_microseconds(duration)
+    microseconds_in_original = to_microseconds(original_datetime - day_start)
+    skew_microseconds = microseconds_in_original % duration_microseconds
+
+    if skew_microseconds == 0:
+        return original_datetime
+    if skew_microseconds < duration_microseconds // 2:
+        return original_datetime - datetime.timedelta(microseconds=skew_microseconds)
+    return original_datetime + datetime.timedelta(microseconds=duration_microseconds - skew_microseconds)
+
+
+def to_sanitized_datetime_string(datetime_string: str, duration: datetime.timedelta) -> str:
+    """to_sanitized_datetime"""
+    sanitized_datetime = to_sanitized_datetime(datetime_string, duration)
+    if sanitized_datetime is None:
+        return ""
+
+    return from_datetime(sanitized_datetime)

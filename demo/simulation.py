@@ -89,15 +89,22 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
 
 def create_simulation_configuration(parameters: DemoParameters) -> str:
     """create_simulation_configuration"""
-    earliest_arrival_time = time.to_datetime(min(user.arrival_time for user in parameters.users))
+    epoch_duration = timedelta(seconds=parameters.epoch_length)
+    earliest_arrival_time = time.to_sanitized_datetime(
+        datetime_string=min(user.arrival_time for user in parameters.users),
+        duration=epoch_duration
+    )
     if earliest_arrival_time is None:
         LOGGER.warning("Could not determine the start time for the simulation")
         return ""
-    latest_leaving_time = time.to_datetime(max(user.target_time for user in parameters.users))
+    latest_leaving_time = time.to_sanitized_datetime(
+        datetime_string=max(user.target_time for user in parameters.users),
+        duration=epoch_duration
+    )
     if latest_leaving_time is None:
         LOGGER.warning("Could not determine the end time for the simulation")
         return ""
-    simulation_start_time = time.from_datetime(earliest_arrival_time - timedelta(seconds=parameters.epoch_length))
+    simulation_start_time = time.from_datetime(earliest_arrival_time - epoch_duration)
     max_epoch_count = int((latest_leaving_time - earliest_arrival_time).total_seconds()) // parameters.epoch_length + 2
 
     json_configuration = {
@@ -119,13 +126,13 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
                     Attributes.USER_ID: user.user_id,
                     Attributes.USER_NAME: user.user_name,
                     Attributes.STATION_ID: user.station_id,
-                    Attributes.ARRIVAL_TIME: user.arrival_time,
+                    Attributes.ARRIVAL_TIME: time.to_sanitized_datetime_string(user.arrival_time, epoch_duration),
                     Attributes.STATE_OF_CHARGE: user.state_of_charge,
                     Attributes.CAR_BATTERY_CAPACITY: user.car_battery_capacity,
                     Attributes.CAR_MODEL: validation.DEFAULT_CAR_MODEL,
                     Attributes.CAR_MAX_POWER: user.car_max_power,
                     Attributes.TARGET_STATE_OF_CHARGE: user.target_state_of_charge,
-                    Attributes.TARGET_TIME: user.target_time
+                    Attributes.TARGET_TIME: time.to_sanitized_datetime_string(user.target_time, epoch_duration)
                 }
                 for user in parameters.users
             },
