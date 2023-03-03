@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, Generator, List, Optional, Type, Union
 
 from demo.tools import tools
 
@@ -57,6 +57,7 @@ class Attributes:
 Value = Union[bool, int, float, str]
 ValueType = Union[Type[bool], Type[int], Type[float], Type[str], Type[List[Any]], Type[Dict[str, Any]]]
 ValueTypeList = List[Type[ValueType]]
+ValueGenerator = Generator[Value, None, None]
 
 EXAMPLE_INPUT_FILE = "example_parameters.json"
 
@@ -142,13 +143,19 @@ class ListChecker(BaseCollectionChecker):
 class DictionaryChecker(BaseCollectionChecker):
     """DictionaryChecker"""
     required_attributes: List[str]
-    default_values: Dict[str, Value]
+    default_values: Dict[str, Value | ValueGenerator]
     attribute_checkers: Dict[str, CheckerType]
     additional_checkers: List[MultiAttributeChecker]
 
     def get_value(self, key: str, values: Dict[str, Any]) -> Any:
         """get_value"""
-        return values.get(key, self.default_values.get(key, None))
+        if key in values:
+            return values[key]
+        default_value = self.default_values.get(key, None)
+        if isinstance(default_value, Generator):
+            default_value = next(default_value)
+        values[key] = default_value
+        return default_value
 
     def check_for_errors(self, values: Dict[str, Any]) -> Optional[str]:
         """check_for_errors"""

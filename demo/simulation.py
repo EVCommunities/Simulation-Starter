@@ -64,8 +64,8 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
         epoch_length=validation.Checkers.PARAMETER_CHECKER.get_value(Attributes.EPOCH_LENGTH, json_object),
         users=tuple(
             UserParameters(
-                user_id=id_number,
-                user_name=f"{validation.DEFAULT_USER_NAME_PREFIX}{id_number}",
+                user_id=user[Attributes.USER_ID],
+                user_name=user[Attributes.USER_NAME],
                 car_battery_capacity=user[Attributes.CAR_BATTERY_CAPACITY],
                 car_max_power=user[Attributes.CAR_MAX_POWER],
                 state_of_charge=user[Attributes.STATE_OF_CHARGE],
@@ -74,7 +74,7 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
                 arrival_time=user[Attributes.ARRIVAL_TIME],
                 target_time=user[Attributes.TARGET_TIME]
             )
-            for id_number, user in enumerate(json_object[Attributes.USERS], start=1)
+            for user in json_object[Attributes.USERS]
         ),
         stations=tuple(
             StationParameters(

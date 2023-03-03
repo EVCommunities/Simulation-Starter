@@ -33,6 +33,16 @@ class SchemaMetadata:
 
 class UserSchema(Schema):
     """UserSchema"""
+    UserId = fields.Integer(
+        required=False,
+        load_default=validation.DEFAULT_USER_ID,
+        metadata=SchemaMetadata("The identification number for the user").metadata
+    )
+    UserName = fields.String(
+        required=False,
+        load_default=validation.DEFAULT_USER_NAME,
+        metadata=SchemaMetadata("The user name").metadata
+    )
     CarBatteryCapacity = fields.Float(
         required=True,
         metadata=SchemaMetadata(

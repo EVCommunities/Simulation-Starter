@@ -6,6 +6,8 @@
 
 """Contains code to validate demo parameters."""
 
+from typing import Generator
+
 from demo.tools import time
 from demo.tools import tools
 from demo.validation.checkers import Attributes, AttributeChecker, DictionaryChecker, ListChecker, MultiAttributeChecker
@@ -23,6 +25,8 @@ DEFAULT_CAR_MODEL = "default"
 DEFAULT_EPOCH_LENGTH = 3600
 DEFAULT_USER_NAME_PREFIX = "User_"
 DEFAULT_STATION_ID_PREFIX = "Station_"
+DEFAULT_USER_ID = 1
+DEFAULT_USER_NAME = f"{DEFAULT_USER_NAME_PREFIX}{DEFAULT_USER_ID}"
 
 EXAMPLE_TOTAL_MAX_POWER = 23.5
 EXAMPLE_CAR_BATTERY_CAPACITY = 140.0
@@ -35,8 +39,27 @@ EXAMPLE_STATION_MAX_POWER = 15.0
 EXAMPLE_STATION_ID = "1"
 
 
+def user_id_generator(start: int = 1) -> Generator[int, None, None]:
+    """user_id_generator"""
+    id_number: int = start
+    while True:
+        yield id_number
+        id_number += 1
+
+
+def user_name_generator(start: int = 1) -> Generator[str, None, None]:
+    """user_name_generator"""
+    id_number: int = start
+    while True:
+        yield f"{DEFAULT_USER_NAME_PREFIX}{id_number}"
+        id_number += 1
+
+
 class Checkers:
     """ParameterCheckers"""
+    USER_ID_GENERATOR: Generator[int, None, None] = user_id_generator()
+    USER_NAME_GENERATOR: Generator[str, None, None] = user_name_generator()
+
     USER_CHECKER = DictionaryChecker(
         required_attributes=[
             Attributes.CAR_BATTERY_CAPACITY,
@@ -47,7 +70,10 @@ class Checkers:
             Attributes.TARGET_TIME,
             Attributes.STATION_ID
         ],
-        default_values={},
+        default_values={
+            Attributes.USER_ID: USER_ID_GENERATOR,
+            Attributes.USER_NAME: USER_NAME_GENERATOR
+        },
         attribute_checkers={
             Attributes.CAR_BATTERY_CAPACITY: AttributeChecker(
                 allowed_types=[int, float],
@@ -83,6 +109,16 @@ class Checkers:
                 allowed_types=[str],
                 check_function=lambda x: len(x) > 0,
                 error_description="The station id for a user must not be empty"
+            ),
+            Attributes.USER_ID: AttributeChecker(
+                allowed_types=[int],
+                check_function=lambda x: x > 0,
+                error_description="The user id must be a positive integer"
+            ),
+            Attributes.USER_NAME: AttributeChecker(
+                allowed_types=[str],
+                check_function=lambda x: len(x) > 0,
+                error_description="The user name must not be empty"
             )
         },
         additional_checkers=[
@@ -166,6 +202,22 @@ class Checkers:
         },
         additional_checkers=[
             MultiAttributeChecker(
+                attribute_names=[Attributes.USERS],
+                check_function=lambda users: (
+                    len([user[Attributes.USER_ID] for user in users]) ==
+                    len(set(user[Attributes.USER_ID] for user in users))
+                ),
+                error_description="All users must have an unique user id"
+            ),
+            MultiAttributeChecker(
+                attribute_names=[Attributes.USERS],
+                check_function=lambda users: (
+                    len([user[Attributes.USER_NAME] for user in users]) ==
+                    len(set(user[Attributes.USER_NAME] for user in users))
+                ),
+                error_description="All users must have an unique user name"
+            ),
+            MultiAttributeChecker(
                 attribute_names=[Attributes.USERS, Attributes.STATIONS],
                 check_function=lambda users, stations: all(
                     user[Attributes.STATION_ID] in [station[Attributes.STATION_ID] for station in stations]
@@ -178,7 +230,7 @@ class Checkers:
                 check_function=(
                     lambda users: time.get_time_difference(
                         min(user[Attributes.ARRIVAL_TIME] for user in users),
-                        max(user[Attributes.TARGET_TIME] for user in users),
+                        max(user[Attributes.TARGET_TIME] for user in users)
                     ) <= MAX_SIMULATION_LENGTH
                 ),
                 error_description=f"The maximum length for a simulation is {MAX_SIMULATION_LENGTH // 3600} hours"
