@@ -115,7 +115,7 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
                 }
             },
             Attributes.USER_COMPONENT: {
-                f"{Attributes.USER}_{user.user_id}": {
+                user.user_name: {
                     Attributes.USER_ID: user.user_id,
                     Attributes.USER_NAME: user.user_name,
                     Attributes.STATION_ID: user.station_id,
