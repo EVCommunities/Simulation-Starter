@@ -54,6 +54,7 @@ class DemoParameters:
 def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, str]:
     """validate_json_input"""
     validity_check = validation.Checkers.PARAMETER_CHECKER.check_for_errors(json_object)
+    validation.Checkers.reset_generators()
     if validity_check is not None:
         LOGGER.warning(validity_check)
         return validity_check
@@ -64,8 +65,8 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
         epoch_length=validation.Checkers.PARAMETER_CHECKER.get_value(Attributes.EPOCH_LENGTH, json_object),
         users=tuple(
             UserParameters(
-                user_id=id_number,
-                user_name=f"{validation.DEFAULT_USER_NAME_PREFIX}{id_number}",
+                user_id=user[Attributes.USER_ID],
+                user_name=user[Attributes.USER_NAME],
                 car_battery_capacity=user[Attributes.CAR_BATTERY_CAPACITY],
                 car_max_power=user[Attributes.CAR_MAX_POWER],
                 state_of_charge=user[Attributes.STATE_OF_CHARGE],
@@ -74,7 +75,7 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
                 arrival_time=user[Attributes.ARRIVAL_TIME],
                 target_time=user[Attributes.TARGET_TIME]
             )
-            for id_number, user in enumerate(json_object[Attributes.USERS], start=1)
+            for user in json_object[Attributes.USERS]
         ),
         stations=tuple(
             StationParameters(
@@ -97,7 +98,7 @@ def create_simulation_configuration(parameters: DemoParameters) -> str:
         LOGGER.warning("Could not determine the end time for the simulation")
         return ""
     simulation_start_time = time.from_datetime(earliest_arrival_time - timedelta(seconds=parameters.epoch_length))
-    max_epoch_count = (latest_leaving_time - earliest_arrival_time).seconds // parameters.epoch_length + 2
+    max_epoch_count = int((latest_leaving_time - earliest_arrival_time).total_seconds()) // parameters.epoch_length + 2
 
     json_configuration = {
         Attributes.SIMULATION: {
