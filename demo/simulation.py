@@ -76,14 +76,14 @@ def validate_json_input(json_object: Dict[str, Any]) -> Union[DemoParameters, st
                 target_time=user[Attributes.TARGET_TIME]
             )
             for user in json_object[Attributes.USERS]
-        ),
+        ),  # type: ignore
         stations=tuple(
             StationParameters(
                 station_id=station[Attributes.STATION_ID],
                 max_power=station[Attributes.MAX_POWER]
             )
             for station in json_object[Attributes.STATIONS]
-        )
+        )  # type: ignore
     )
 
 

@@ -121,7 +121,7 @@ class Checkers:
         additional_checkers=[
             MultiAttributeChecker(
                 attribute_names=[Attributes.ARRIVAL_TIME, Attributes.TARGET_TIME],
-                check_function=lambda x, y: 0 < time.get_time_difference(x, y) <= MAX_SIMULATION_LENGTH,
+                check_function=lambda x, y: 0 < time.get_time_difference(x, y) <= MAX_SIMULATION_LENGTH,  # type: ignore
                 error_description=(
                     f"The leaving time must be between 0 and {MAX_SIMULATION_LENGTH // 3600} " +
                     "hours later than the arrival time"
@@ -129,7 +129,7 @@ class Checkers:
             ),
             MultiAttributeChecker(
                 attribute_names=[Attributes.TARGET_STATE_OF_CHARGE, Attributes.STATE_OF_CHARGE],
-                check_function=lambda x, y: 0 <= x - y <= 100,
+                check_function=lambda x, y: 0 <= x - y <= 100,  # type: ignore
                 error_description="The target state of charge cannot be smaller the initial state of charge"
             )
         ]
@@ -200,53 +200,53 @@ class Checkers:
         additional_checkers=[
             MultiAttributeChecker(
                 attribute_names=[Attributes.USERS],
-                check_function=lambda users: (
-                    len([user[Attributes.USER_ID] for user in users]) ==
-                    len(set(user[Attributes.USER_ID] for user in users))
+                check_function=lambda users: (  # type: ignore
+                    len([user[Attributes.USER_ID] for user in users]) ==  # type: ignore
+                    len(set(user[Attributes.USER_ID] for user in users))  # type: ignore
                 ),
                 error_description="All users must have an unique user id"
             ),
             MultiAttributeChecker(
                 attribute_names=[Attributes.USERS],
-                check_function=lambda users: (
-                    len([user[Attributes.USER_NAME] for user in users]) ==
-                    len(set(user[Attributes.USER_NAME] for user in users))
+                check_function=lambda users: (  # type: ignore
+                    len([user[Attributes.USER_NAME] for user in users]) ==  # type: ignore
+                    len(set(user[Attributes.USER_NAME] for user in users))  # type: ignore
                 ),
                 error_description="All users must have an unique user name"
             ),
             MultiAttributeChecker(
                 attribute_names=[Attributes.USERS, Attributes.STATIONS],
-                check_function=lambda users, stations: all(
-                    user[Attributes.STATION_ID] in [station[Attributes.STATION_ID] for station in stations]
-                    for user in users
+                check_function=lambda users, stations: all(  # type: ignore
+                    user[Attributes.STATION_ID] in [station[Attributes.STATION_ID] for station in stations]  # type: ignore
+                    for user in users  # type: ignore
                 ),
                 error_description="All stations that users are connected to must be part of the simulation"
             ),
             MultiAttributeChecker(
                 attribute_names=[Attributes.USERS],
                 check_function=(
-                    lambda users: time.get_time_difference(
-                        min(user[Attributes.ARRIVAL_TIME] for user in users),
-                        max(user[Attributes.TARGET_TIME] for user in users)
+                    lambda users: time.get_time_difference(  # type: ignore
+                        min(user[Attributes.ARRIVAL_TIME] for user in users),  # type: ignore
+                        max(user[Attributes.TARGET_TIME] for user in users)  # type: ignore
                     ) <= MAX_SIMULATION_LENGTH
                 ),
                 error_description=f"The maximum length for a simulation is {MAX_SIMULATION_LENGTH // 3600} hours"
             ),
             MultiAttributeChecker(
                 attribute_names=[Attributes.USERS],
-                check_function=lambda users: all(
+                check_function=lambda users: all(  # type: ignore
                     all(
                         (
                             same_station_user[Attributes.ARRIVAL_TIME] >= user[Attributes.TARGET_TIME] or
                             same_station_user[Attributes.TARGET_TIME] <= user[Attributes.ARRIVAL_TIME]
                         )
-                        for same_station_index, same_station_user in enumerate(users)
+                        for same_station_index, same_station_user in enumerate(users)  # type: ignore
                         if (
                             same_station_index != index and
                             same_station_user[Attributes.STATION_ID] == user[Attributes.STATION_ID]
                         )
                     )
-                    for index, user in enumerate(users)
+                    for index, user in enumerate(users)  # type: ignore
                 ),
                 error_description="Multiple users cannot be connected to the same station at the same time"
             )

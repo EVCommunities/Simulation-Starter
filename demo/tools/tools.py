@@ -17,7 +17,7 @@ import logging
 import os
 import sys
 from types import TracebackType
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union, cast
 
 UTC_Z = "Z"
 UTZ_VALUE = "+00:00"
@@ -179,25 +179,25 @@ class FullLogger:
                 console_handler.setFormatter(logger_formatter)
             self.__logger.addHandler(console_handler)
 
-    def debug(self, message: str, *args: object, **kwargs: Mapping[str, object]):
+    def debug(self, message: str, *args: object):
         """Writes log message with DEBUG logging level."""
-        self.__logger.debug(message, *args, **kwargs)
+        self.__logger.debug(message, *args)
 
-    def info(self, message: str, *args: object, **kwargs: Mapping[str, object]):
+    def info(self, message: str, *args: object,):
         """Writes log message with INFO logging level."""
-        self.__logger.info(message, *args, **kwargs)
+        self.__logger.info(message, *args)
 
-    def warning(self, message: str, *args: object, **kwargs: Mapping[str, object]):
+    def warning(self, message: str, *args: object):
         """Writes log message with WARNING logging level."""
-        self.__logger.warning(message, *args, **kwargs)
+        self.__logger.warning(message, *args)
 
-    def error(self, message: str, *args: object, **kwargs: Mapping[str, object]):
+    def error(self, message: str, *args: object):
         """Writes log message with ERROR logging level."""
-        self.__logger.error(message, *args, **kwargs)
+        self.__logger.error(message, *args)
 
-    def critical(self, message: str, *args: object, **kwargs: Mapping[str, object]):
+    def critical(self, message: str, *args: object):
         """Writes log message with CRITICAL logging level."""
-        self.__logger.critical(message, *args, **kwargs)
+        self.__logger.critical(message, *args)
 
     @property
     def level(self) -> int:
@@ -295,7 +295,7 @@ def async_wrap(synchronous_function: Callable[..., Any]):
     return run
 
 
-def handle_async_exception(event_loop: Any, context: Any):
+def handle_async_exception(_: Any, context: Any):
     """Prints out any unhandled exceptions from async tasks."""
     # pylint: disable=unused-argument
     if isinstance(context, dict):

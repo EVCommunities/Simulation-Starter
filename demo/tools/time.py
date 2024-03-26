@@ -42,8 +42,8 @@ def from_datetime(datetime_object: datetime.datetime) -> str:
 
 def get_clean_time_string() -> str:
     """get_clean_time_string"""
-    now = datetime.datetime.utcnow()
-    return now.isoformat().replace("-", "").replace(":", "").replace("T", "-").replace(".", "-")
+    now = datetime.datetime.now(datetime.timezone.utc)
+    return now.isoformat().replace("+00:00", "").replace("-", "").replace(":", "").replace("T", "-").replace(".", "-")
 
 
 def to_microseconds(duration: datetime.timedelta) -> int:
